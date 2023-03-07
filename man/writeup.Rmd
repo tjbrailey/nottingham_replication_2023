@@ -1,0 +1,46 @@
+---
+title: ""
+#author: "^[Word count: `r wordcountaddin::word_count(paste0(here::here('man'), '/writeup.rmd'))`]"
+date: "`r format(Sys.time(), '%B, %Y')`"
+output:
+  bookdown::pdf_document2:
+    fig_caption: yes
+    fig_crop: yes
+    keep_tex: yes
+    number_sections: false
+    citation_package: biblatex
+    toc: false
+    word_count: true
+#bibliography: assignment2.bib
+link-citations: true
+linkcolor: blue
+biblatexoptions: [backend=biber,citestyle=authoryear,maxcitenames=2, useprefix,autocite=inline,doi=false,url=false,isbn=false]
+header-includes:
+  - \usepackage[english]{babel}
+  - \usepackage[utf8]{inputenc}
+  - \usepackage{csquotes}
+  - \usepackage{fancyhdr}
+  - \usepackage{setspace}
+  - \usepackage{geometry}
+  - \usepackage{verbatim}
+  - \usepackage{hyperref}
+  - \usepackage{xcolor}
+  - \usepackage{floatrow}
+  - \floatsetup[table]{capposition=top}
+  - \floatsetup[figure]{capposition=top}
+fontsize: 12pt
+---
+
+# Replication of Main Exhibits
+
+```{r echo=FALSE,fig.cap="Replication of Figure 1"}
+knitr::include_graphics(paste0(here::here("exhibits", "figures"), "/figure1_replication.pdf"))
+```
+
+# Replication of appendix A
+
+\input{../exhibits/tables/table_a1_replication.tex}
+
+\input{../exhibits/tables/table_a2_replication.tex}
+
+
