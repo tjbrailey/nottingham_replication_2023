@@ -1,9 +1,9 @@
 #Actually run the simulation or just load the data and look at it?
 run_sim <- TRUE
 # Max number of respondents fixed at 2700
-num_resp <- 267795
+num_resp <- 250000
 # Number of iterations (breaks in sample size)
-num_iter <- 300
+num_iter <- 100
 # Number of simulations to run per iteration
 num_sims <- 10
 
@@ -31,6 +31,7 @@ treatments2 <- c(
 
 total_treat <- length(c(treatments1, treatments2))
 
+# Full combination of treatment groups
 grid_pair <- as.matrix(expand.grid(treatments1, treatments2))
 
 print(head(grid_pair))
@@ -43,14 +44,18 @@ if(.Platform$OS.type == "windows") {
   parallelfunc <- parallel::mclapply
 }
 
+###########################################################################
+##### Begin simulation
+
 if(run_sim == TRUE) {
-  file.create("output_log.txt", showWarnings = FALSE)
+  file.create(paste0(
+    here::here("code", "logs"), "/output_log.txt"), showWarnings = FALSE)
   
   # Need to randomize over the simulations so that parallelization 
   # works correctly on windows
   sampled_seq <- sample(seq(100, num_resp, length.out = num_iter))
   
-  # 
+  # begin simulation
   all_sims <- parallelfunc(sampled_seq, function(x) {
     
     out_probs <- 1:num_sims
@@ -59,6 +64,10 @@ if(run_sim == TRUE) {
         file = "output_log.txt", sep = "\n", append = TRUE)
     print(paste0("Now running simulation on data sample size ", x))
     
+    # simulate dataset
+    #######################################################################
+    
+    #j <- 1
     out_data <- lapply(1:num_sims, function(j) {
       
       total_probs <- sapply(1:x, function(x) {
@@ -68,7 +77,7 @@ if(run_sim == TRUE) {
       })
       
       by_resp <- t(total_probs)
-      by_resp <- dplyr::as_data_frame(by_resp)
+      by_resp <- dplyr::as_tibble(by_resp)
       
       names(by_resp) <- c(
         paste0("actor.", 1:4, "_cluster", c(1, 1, 2, 2)), 
@@ -76,7 +85,7 @@ if(run_sim == TRUE) {
       
       by_resp$respondent <- paste0("Respondent_", 1:nrow(by_resp))
       by_resp <- tidyr::gather(
-        by_resp, attribute, indicator,-respondent) %>% 
+        by_resp, attribute, indicator, -respondent) %>% 
         tidyr::separate(
           attribute, into = c("attribute", "cluster"), sep = "_") %>% 
         tidyr::separate(
@@ -84,24 +93,20 @@ if(run_sim == TRUE) {
         tidyr::spread(attribute, indicator)
       
       # Assign true coefficients for treatments
-      
       #Beta_js
-      
       set.seed(as.numeric(paste(x, j, sep = "")))
-      coefs <- dplyr::data_frame(
+      coefs <- dplyr::tibble(
         coef_val = rnorm(
           n = length(c(treatments1, treatments2)), 
           mean = 0, sd = 1),
         treat_label = c(treatments1,treatments2))
       
       # Create cluster covariance in the errors
-      
       sigma_matrix <- matrix(2, nrow = 4, ncol = 4)
       diag(sigma_matrix) <- 4
       
       # Add on the outcome as a normal draw, treatment coefficients, 
       # interaction coefficient, group errors/interaction by respondent
-      
       by_resp <- tidyr::gather(
         by_resp, treatment, appeal_type, actor, gift) %>% 
         dplyr::left_join(coefs, by = c("appeal_type" = "treat_label"))
@@ -122,7 +127,6 @@ if(run_sim == TRUE) {
         dplyr::ungroup()
       
       # interaction coefficient only in function if military==TRUE
-      
       by_resp <- dplyr::mutate(
         by_resp, int_coef = true_effect * rbinom(
           n = dplyr::n(), prob = 0.2, size = 1),
@@ -140,7 +144,6 @@ if(run_sim == TRUE) {
       # However, we now need to drop the reference categories
       # Drop one dummy from actor/gift to prevent 
       # multicollinearity = reforms + government combination
-      
       out_var <- tidyr::gather(
         by_resp,var_name, var_value, -respondent, -task, -cluster) %>% 
         dplyr::filter(!(var_name %in% c("reforms","government"))) %>% 
@@ -150,8 +153,7 @@ if(run_sim == TRUE) {
       combined_data <- dplyr::left_join(
         out_var, by_resp, by = c("respondent", "task"))
       
-      # Re-estimate with a blocking variable
-      
+      # Re-estimate with a blocking variable (post-stratification variable)
       combined_data$Q <- c(rep(1, floor(nrow(combined_data)/2)),
                            rep(0, ceiling(nrow(combined_data)/2)))
       
@@ -193,7 +195,6 @@ if(run_sim == TRUE) {
       int_sig_adj <- pvals_adj["military:int_coef"]
       
       # Now run the poststratification model
-      
       results_ps <- lm(outcome ~ contracts.supply + exprop.firm + 
                          exprop.income + military + MOI + MOJ + 
                          municipality + parliament + permit.export + 
@@ -222,11 +223,16 @@ if(run_sim == TRUE) {
         est_effect_ps = coef(results)["military:int_coef"])
     })
     
+    # end of DGP
+    #######################################################################
+    
     # bind all datasets together
     out_data <- dplyr::bind_rows(out_data)
     
     return(out_data)
-  }, mc.cores = parallel::detectCores(), mc.preschedule = FALSE)
+  }, 
+  
+  mc.cores = parallel::detectCores(), mc.preschedule = FALSE)
   
   # save the data for inspection
   all_sims_data <- dplyr::bind_rows(all_sims) %>% 
@@ -235,7 +241,7 @@ if(run_sim == TRUE) {
       iter = rep(1:num_sims, times = num_iter))
 }
 
-# run
+# run simulation
 run_sim <- FALSE
 if(run_sim == TRUE) {
   saveRDS(object = all_sims_data, file = "all_sims_data.rds")
@@ -244,10 +250,9 @@ if(run_sim == TRUE) {
 }
 
 ###########################################################################
-##### 
+##### plot outputs
 
 # add in different calculations
-
 all_sims_data <- 
   dplyr::group_by(all_sims_data,sample_size)  %>% 
   dplyr::mutate(

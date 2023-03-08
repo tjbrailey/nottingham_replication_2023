@@ -1,6 +1,6 @@
 ---
-title: ""
-#author: "^[Word count: `r wordcountaddin::word_count(paste0(here::here('man'), '/writeup.rmd'))`]"
+title: "Replication of @Frederiksen2022a"
+author: "Tom Brailey^[Word count: `r wordcountaddin::word_count(paste0(here::here('man'), '/writeup.rmd'))`]"
 date: "`r format(Sys.time(), '%B, %Y')`"
 output:
   bookdown::pdf_document2:
@@ -9,9 +9,9 @@ output:
     keep_tex: yes
     number_sections: false
     citation_package: biblatex
-    toc: false
+    toc: true
     word_count: true
-#bibliography: assignment2.bib
+bibliography: ../bibliography/nottingham-rep.bib
 link-citations: true
 linkcolor: blue
 biblatexoptions: [backend=biber,citestyle=authoryear,maxcitenames=2, useprefix,autocite=inline,doi=false,url=false,isbn=false]
@@ -31,16 +31,30 @@ header-includes:
 fontsize: 12pt
 ---
 
-# Replication of Main Exhibits
+# Introduction
+
+This memo begins by replicating the main exhibits in @Frederiksen2022a (as well as some of the exhibits in their supplementary materials section^[See [@Frederiksen2022b; @Frederiksen2022c]]) using the R programming language. 
+
+# Replication
+
+## Replication of Main Exhibits
+
+The main paper only contains one exhibit, Figure 1, replicated below. The figure replicates exactly, though it should be noted that the the upper panels of Figure 1 are calculated without reference to a base category, while the lower panels are the marginal means compared to the third category of the independent variable (`cancom`).
 
 ```{r echo=FALSE,fig.cap="Replication of Figure 1"}
 knitr::include_graphics(paste0(here::here("exhibits", "figures"), "/figure1_replication.pdf"))
 ```
 
-# Replication of appendix A
+## Replication of Appendix A
+
+Both tables in Appendix A replicate exactly in terms of point estimates, statistical significance, and number of observations.
 
 \input{../exhibits/tables/table_a1_replication.tex}
 
 \input{../exhibits/tables/table_a2_replication.tex}
+
+# Extension
+
+In this section, I extend the analysis presented in @Frederiksen2022a.
 
 

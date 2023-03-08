@@ -79,10 +79,13 @@
   \usepackage{selnolig}  % disable illegal ligatures
 \fi
 \usepackage[backend=biber,citestyle=authoryear,maxcitenames=2,useprefix,autocite=inline,doi=false,url=false,isbn=false]{biblatex}
+\addbibresource{../bibliography/nottingham-rep.bib}
 \IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
 \IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
 \urlstyle{same} % disable monospaced font for URLs
 \hypersetup{
+  pdftitle={Replication of @Frederiksen2022a},
+  pdfauthor={Tom Brailey},
   colorlinks=true,
   linkcolor={blue},
   filecolor={Maroon},
@@ -90,13 +93,30 @@
   urlcolor={Blue},
   pdfcreator={LaTeX via pandoc}}
 
-\author{}
-\date{\vspace{-2.5em}March, 2023}
+\title{Replication of \textcite{Frederiksen2022a}}
+\author{Tom Brailey\footnote{Word count: 126}}
+\date{March, 2023}
 
 \begin{document}
+\maketitle
+
+{
+\hypersetup{linkcolor=}
+\setcounter{tocdepth}{2}
+\tableofcontents
+}
+\hypertarget{introduction}{%
+\section{Introduction}\label{introduction}}
+
+This memo begins by replicating the main exhibits in \textcite{Frederiksen2022a} (as well as some of the exhibits in their supplementary materials section\footnote{See \autocite{Frederiksen2022b,Frederiksen2022c}}) using the R programming language.
+
+\hypertarget{replication}{%
+\section{Replication}\label{replication}}
 
 \hypertarget{replication-of-main-exhibits}{%
-\section{Replication of Main Exhibits}\label{replication-of-main-exhibits}}
+\subsection{Replication of Main Exhibits}\label{replication-of-main-exhibits}}
+
+The main paper only contains one exhibit, Figure 1, replicated below. The figure replicates exactly, though it should be noted that the the upper panels of Figure 1 are calculated without reference to a base category, while the lower panels are the marginal means compared to the third category of the independent variable (\texttt{cancom}).
 
 \begin{figure}
 \centering
@@ -105,13 +125,18 @@
 \end{figure}
 
 \hypertarget{replication-of-appendix-a}{%
-\section{Replication of appendix A}\label{replication-of-appendix-a}}
+\subsection{Replication of Appendix A}\label{replication-of-appendix-a}}
+
+Both tables in Appendix A replicate exactly in terms of point estimates, statistical significance, and number of observations.
 
 \input{../exhibits/tables/table_a1_replication.tex}
 
 \input{../exhibits/tables/table_a2_replication.tex}
 
-```
+\hypertarget{extension}{%
+\section{Extension}\label{extension}}
+
+In this section, I extend the analysis presented in \textcite{Frederiksen2022a}.
 
 \printbibliography
 

@@ -196,8 +196,10 @@ texreg::texreg(
     "cancom_rc24" = "Competent",
     "cancom_rc25" = "Very Competent",
     "(Intercept)" = "Constant"), 
-  center = TRUE, caption = "Table A1", 
+  center = TRUE, 
+  caption = "Average effects of undemocratic behavior and competence in the Czech Republic, Mexico, South Korea, the United Kingdom, and the United States. Candidate support is the dependent variable in all models.", 
   float.pos = "!htbp", 
+  label = "table_a1",
   caption.above = TRUE, 
   include.ci = FALSE,  
   file = paste0(here::here("exhibits", "tables"), "/table_a1_replication.tex")
@@ -229,8 +231,10 @@ texreg::texreg(
     "candemmg_rc20:cancom_rc22" = "Undemocratic x Incompetent",
     "candemmg_rc20:cancom_rc24" = "Undemocratic x Competent",
     "candemmg_rc20:cancom_rc25" = "Undemocratic x Very competent"),
-  center = TRUE, caption = "Table A1", 
+  center = TRUE, 
+  caption = "Effects of undemocratic behavior interacted by candidate competence in the Czech Republic, Mexico, South Korea, the United Kingdom, and the United States. Candidate support is the dependent variable in all models.",
   float.pos = "!htbp", 
+  label = "table_a2",
   caption.above = TRUE,   
   include.ci = FALSE, 
   file = paste0(here::here("exhibits", "tables"), "/table_a2_replication.tex"))

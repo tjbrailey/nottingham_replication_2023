@@ -35,7 +35,8 @@ mm_plot <- function(data, title, legend = FALSE){
       shape = "",
       title = title) + 
     theme_minimal() + 
-    theme(axis.text.x = element_blank())
+    theme(axis.text.x = element_blank(), 
+          text = element_text(size = 15))
   
   if(legend == FALSE){
     plot1 <- plot1 + theme(legend.position = "none")
@@ -47,7 +48,7 @@ mm_plot <- function(data, title, legend = FALSE){
   
 }
 
-# plot countries
+# plot contrasts
 mm_c_plot <- 
   function(data, title){
     plot1 <- ggplot(
@@ -72,7 +73,8 @@ mm_c_plot <-
       labs(
         x = "",
         y = "") + 
-      theme_minimal()
+      theme_minimal() + 
+      theme(text = element_text(size = 15))
     
     if(!is.null(title)){
       plot1 <- plot1 + ggtitle(title)
