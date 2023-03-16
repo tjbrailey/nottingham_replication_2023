@@ -178,6 +178,7 @@ list_table_a1 <- lapply(
   X = seq_along(vec_table_a1_columns),
   FUN = function(y){
     out <- fxn_regression(
+      data = df_original, 
       formula = "support_rc ~ candemmg_rc2 + cancom_rc2", 
       cntry = vec_table_a1_columns[y])
     return(out)})
@@ -197,12 +198,17 @@ texreg::texreg(
     "cancom_rc25" = "Very Competent",
     "(Intercept)" = "Constant"), 
   center = TRUE, 
-  caption = "Average effects of undemocratic behavior and competence in the Czech Republic, Mexico, South Korea, the United Kingdom, and the United States. Candidate support is the dependent variable in all models.", 
+  caption = paste0(
+    "Average effects of undemocratic behavior and", 
+    "competence in the Czech Republic, Mexico, South Korea, the United",
+    "Kingdom, and the United States. Candidate support is the dependent",
+    "variable in all models."), 
   float.pos = "!htbp", 
   label = "table_a1",
   caption.above = TRUE, 
   include.ci = FALSE,  
-  file = paste0(here::here("exhibits", "tables"), "/table_a1_replication.tex")
+  file = paste0(
+    here::here("exhibits", "tables"), "/table_a1_replication.tex")
   )
 
 ### A2 
@@ -210,6 +216,7 @@ list_table_a2 <- lapply(
   X = seq_along(vec_table_a1_columns),
   FUN = function(y){
     out <- fxn_regression(
+      data = df_original,
       formula = "support_rc ~ candemmg_rc2 * cancom_rc2", 
       cntry = vec_table_a1_columns[y])
     return(out)})
@@ -232,14 +239,73 @@ texreg::texreg(
     "candemmg_rc20:cancom_rc24" = "Undemocratic x Competent",
     "candemmg_rc20:cancom_rc25" = "Undemocratic x Very competent"),
   center = TRUE, 
-  caption = "Effects of undemocratic behavior interacted by candidate competence in the Czech Republic, Mexico, South Korea, the United Kingdom, and the United States. Candidate support is the dependent variable in all models.",
+  caption = paste0(
+    "Effects of undemocratic behavior interacted by, candidate competence",
+    "in the Czech Republic, Mexico, South Korea, the United Kingdom, and",
+    "the United States. Candidate support is the dependent variable in", 
+    "all models."),
   float.pos = "!htbp", 
   label = "table_a2",
   caption.above = TRUE,   
   include.ci = FALSE, 
-  file = paste0(here::here("exhibits", "tables"), "/table_a2_replication.tex"))
+  file = paste0(
+    here::here("exhibits", "tables"), "/table_a2_replication.tex"))
 
 ###########################################################################
 ##### Appendix B
 
+###########################################################################
+##### Supplementary materials
 
+### Table A1
+
+# Age
+df_original %<>% 
+  dplyr::mutate(
+    # create age categories
+    age_grp = dplyr::case_when(
+      country == "US" & age %in% c(40:49) ~ "40-49",
+      country == "US" & age %in% c(50:59) ~ "50-59",
+      country == "US" & age %in% c(60:62) ~ "60-62",
+      country == "US" & age %in% c(63:66) ~ "63-66",
+      country == "US" & age %in% c(67:75) ~ "67-75",
+      country == "CZ" & age %in% c(43:57) ~ "43-57",
+      country == "CZ" & age %in% c(58:67) ~ "58-67",
+      country == "CZ" & age %in% c(68:77) ~ "68-77",
+      country == "UK" & age %in% c(44:53) ~ "44-53",
+      country == "UK" & age %in% c(54:57) ~ "54-57",
+      country == "UK" & age %in% c(58:61) ~ "58-61"))
+
+table_sa1_age <- fxn_prop_table("age_grp")
+
+# Gender
+table_sa1_gender <- fxn_prop_table("gender")
+
+# Profession
+table_sa1_background <- fxn_prop_table("background")
+
+# Party 
+table_sa1_party <- fxn_prop_table("party")
+
+# Redistribution
+table_sa1_redi <- fxn_prop_table("redi")
+
+# Morality policy
+table_sa1_soc <- fxn_prop_table("soc")
+
+# Democratic behaviour
+table_sa1_dem <- fxn_prop_table("dem")
+
+# Reputation: Economy
+table_sa1_eco <- fxn_prop_table("eco")
+
+# Reputation: Corruption
+table_sa1_cor <- fxn_prop_table("cor")
+
+table_sa1 <- dplyr::bind_rows(
+  table_sa1_age, table_sa1_gender, table_sa1_background,
+  table_sa1_party, table_sa1_redi, table_sa1_soc,
+  table_sa1_dem, table_sa1_eco, table_sa1_cor)
+  
+save(table_sa1, file = paste0(
+  here::here("exhibits", "tables"), "/table_sa1_replication.rdata"))
