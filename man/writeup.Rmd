@@ -31,6 +31,10 @@ header-includes:
 fontsize: 12pt
 ---
 
+```{r echo=FALSE}
+library(magrittr)
+```
+
 # Introduction
 
 This memo begins by replicating the main exhibits in @Frederiksen2022a (as well as some of the exhibits in their supplementary materials section^[See [@Frederiksen2022b; @Frederiksen2022c]]) using the R programming language. 
@@ -45,13 +49,34 @@ The main paper only contains one exhibit, Figure 1, replicated below. The figure
 knitr::include_graphics(paste0(here::here("exhibits", "figures"), "/figure1_replication.pdf"))
 ```
 
-## Replication of Appendix A
+\clearpage
+
+## Replication of Dataverse Appendix A
 
 Both tables in Appendix A replicate exactly in terms of point estimates, statistical significance, and number of observations.
 
 \input{../exhibits/tables/table_a1_replication.tex}
 
 \input{../exhibits/tables/table_a2_replication.tex}
+
+\clearpage
+
+## Replication of Supplementary Materials Appendix A
+
+```{r, echo=FALSE}
+
+load(paste0(here::here("exhibits", "tables"), "/table_sa1_replication.rdata"))
+knitr::kable(table_sa1, caption = "Distribution of attributes: US, UK, and CZ. Age is drawn randomly from probability-specified intervals.",
+             col.names = c("Attribute Category", "CZ", "UK", "US", "MX", "SK"),
+             longtable = TRUE,
+             booktabs = TRUE) %>% 
+  kableExtra::kable_styling(latex_options = c("repeat_header"))  %>%
+  kableExtra::kable_classic() %>%
+  kableExtra::column_spec(1, width = "7cm")
+
+```
+
+\clearpage
 
 # Extension
 
