@@ -1,18 +1,18 @@
 ###########################################################################
 
-fxn_regression <- function(formula, cntry){
+fxn_regression <- function(data, formula, cntry){
   
   if(cntry == "pooled"){
-    data <- df_original
+    dat <- data
   } else {
-    data <- dplyr::filter(df_original, country == cntry)
+    dat <- dplyr::filter(data, country == cntry)
   }
   
   form <- as.formula(formula)
   model <- estimatr::lm_robust(
     form,
     clusters = resp,
-    data = data)
+    data = dat)
   
   return(model)
 }
