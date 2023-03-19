@@ -34,14 +34,16 @@ mm_plot <- function(data, title, legend = FALSE){
       color = "",
       shape = "",
       title = title) + 
-    theme_minimal() + 
+    theme_bw() + 
     theme(axis.text.x = element_blank(), 
           text = element_text(size = 15))
   
   if(legend == FALSE){
     plot1 <- plot1 + theme(legend.position = "none")
   } else{
-    plot1 <- plot1 + theme(legend.position = c(0.2, 0.9))
+    plot1 <- plot1 + theme(legend.position = c(0.2, 0.9),
+                           legend.background = element_blank(),
+                           legend.key = element_blank())
   }
   
   return(plot1)
@@ -73,7 +75,7 @@ mm_c_plot <-
       labs(
         x = "",
         y = "") + 
-      theme_minimal() + 
+      theme_bw() + 
       theme(text = element_text(size = 15))
     
     if(!is.null(title)){

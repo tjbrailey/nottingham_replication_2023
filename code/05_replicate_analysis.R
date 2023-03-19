@@ -1,9 +1,6 @@
 ###########################################################################
 ##### Replication of analysis
 
-library(magrittr)
-library(ggplot2)
-
 table(df_original$cancom)
 table(df_original$support)
 table(df_original$candemmg)
@@ -45,10 +42,12 @@ table(df_original$candemmg_rc)
 
 ### pooled model
 
+df_original_sub <- dplyr::filter(df_original, !is.na(support_rc))
+
 # run regression
 reg_f1_1 <- lm(
   support_rc ~ candemmg_rc * cancom_rc,
-  data = df_original)
+  data = df_original_sub)
 
 texreg::screenreg(reg_f1_1)
 
@@ -60,21 +59,25 @@ reg_f1_1_me <- ggeffects::ggeffect(
 
 # calculate contrasts
 reg_f1_1_emm <- emmeans::emmeans(
-  reg_f1_1, 
-  ~ candemmg_rc * cancom_rc, 
-  type = "response")
+  object = reg_f1_1,
+  specs = ~ candemmg_rc * cancom_rc, 
+  vcov = sandwich::vcovCL(
+    x = reg_f1_1, 
+    cluster = df_original_sub$resp))
 
 reg_f1_1_c <- emmeans::contrast(
-  reg_f1_1_emm, interaction = TRUE) %>%
+  object = reg_f1_1_emm, 
+  interaction = TRUE) %>%
   as.data.frame(.) %>% 
   dplyr::filter(candemmg_rc_eff == "0 effect") %>%
   dplyr::mutate(
-    conf_low = estimate - 1.96 * SE,
-    conf_high = estimate + 1.96 * SE,
+    conf_low = estimate - (1.96 * SE),
+    conf_high = estimate + (1.96 * SE),
     index = dplyr::row_number()) %>% 
   dplyr::filter(cancom_rc_eff != "3 effect")
 
 mm_pooled <- mm_plot(reg_f1_1_me, title = "Pooled", legend = TRUE)
+mm_pooled
 
 mm_c_pooled <- mm_c_plot(reg_f1_1_c, title = NULL)
 mm_c_pooled
@@ -158,6 +161,7 @@ figure1 <- cowplot::plot_grid(
   rel_heights = c(1, 1/2, 1, 1/2, 1, 1/2, 1, 1/2), 
   rel_widths = c(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1))
 
+figure1 
 # save plot
 ggsave(
   plot = figure1, 
@@ -189,7 +193,10 @@ texreg::texreg(
     list_table_a1[[2]],
     list_table_a1[[3]],
     list_table_a1[[4]],
-    list_table_a1[[5]]),
+    list_table_a1[[5]],
+    list_table_a1[[6]]),
+  custom.model.names = c(
+    "Pooled", "CZ", "MX", "SK", "UK", "US"),
   custom.coef.map = list(
     "candemmg_rc20" = "Undemocratic behavior",
     "cancom_rc21" = "Very incompetent",
@@ -227,7 +234,10 @@ texreg::texreg(
     list_table_a2[[2]],
     list_table_a2[[3]],
     list_table_a2[[4]],
-    list_table_a2[[5]]),
+    list_table_a2[[5]],
+    list_table_a2[[6]]),
+  custom.model.names = c(
+    "Pooled", "CZ", "MX", "SK", "UK", "US"),
   custom.coef.map = list(
     "candemmg_rc20" = "Undemocratic behavior",
     "cancom_rc21" = "Very incompetent",
@@ -305,7 +315,17 @@ table_sa1_cor <- fxn_prop_table("cor")
 table_sa1 <- dplyr::bind_rows(
   table_sa1_age, table_sa1_gender, table_sa1_background,
   table_sa1_party, table_sa1_redi, table_sa1_soc,
-  table_sa1_dem, table_sa1_eco, table_sa1_cor)
-  
+  table_sa1_dem, table_sa1_eco, table_sa1_cor) %>% 
+  dplyr::mutate(dplyr::across(dplyr::everything(), 
+                              ~ ifelse(is.na(.), "", .)))
+
+table_sa1_tex <- xtable::xtable(dplyr::rename(table_sa1,
+                                              "Attribute Category" = "measure"))
+xtable::align(table_sa1_tex) <- "lp{7cm}ccccc"
+xtable::print.xtable(
+  table_sa1_tex, tabular.environment = "longtable", floating = FALSE, 
+  booktabs = TRUE,
+  file = here::here("exhibits", "tables", "table_sa1_replication.tex"))  
+
 save(table_sa1, file = paste0(
   here::here("exhibits", "tables"), "/table_sa1_replication.rdata"))

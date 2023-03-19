@@ -24,7 +24,8 @@ ggplot(data = dplyr::filter(
   theme_bw() + 
   theme(aspect.ratio = 1)
 ggsave(plot = last_plot(),
-       filename = here::here("exhibits", "figures", "time_taken_distribution.pdf"),
+       filename = here::here(
+         "exhibits", "figures", "time_taken_distribution.pdf"),
        width = 10, 
        height = 10)
 
@@ -142,8 +143,130 @@ ggplot(data = dplyr::filter(df_response_times, coef != "(Intercept)"),
        y = "Coefficient", 
        color = "Restriction") +
   theme_bw() +
-  theme(aspect.ratio = 1)
+  theme(aspect.ratio = 1,
+        legend.position = "bottom")
 ggsave(plot = last_plot(),
-       filename = here::here("exhibits", "figures", "estimates_by_time_taken.pdf"),
+       filename = here::here(
+         "exhibits", "figures", "estimates_by_time_taken.pdf"),
        width = 10,
        height = 10)
+
+###########################################################################
+##### Robustness to alternative specifications
+
+# ordered logistic regression
+reg_olog1 <- MASS::polr(as.factor(support) ~ candemmg + cancom, data = df_original)
+
+#  brant test 
+brant::brant(reg_olog1) # fails
+
+# multinomial logit
+reg_mlog1 <- nnet::multinom(as.factor(support) ~ candemmg + cancom, 
+                            data = df_original)
+
+# tabulate outcome
+reg_mlog1 %>% 
+  gtsummary::tbl_regression(exponentiate = TRUE) %>% 
+  gtsummary::as_kable_extra(tbl, format = "latex")
+
+# example candidate
+eg <- dplyr::filter(df_original, country == "CZ", respondentid %in% 4:5)
+
+###########################################################################
+##### dropping inattentive subsets
+
+inattentive <- lapply(
+  X = seq_along(vec_table_a1_columns),
+  FUN = function(y){
+    out <- fxn_regression(
+      data = dplyr::filter(
+        df_original,
+        correctatte == "Attentive"),
+      formula = "support_rc ~ candemmg_rc2 + cancom_rc2", 
+      cntry = vec_table_a1_columns[y])
+    estimate <- out$coefficients
+    std_error <- out$std.error
+    conf_low <- out$conf.low
+    conf_high <- out$conf.high
+    out <- data.frame(
+      "outcome" = vec_table_a1_columns[y],
+      "estimate" = estimate,
+      "std_error" = std_error,
+      "conf_high" = conf_high,
+      "conf_low" = conf_low)
+    out %<>% tibble::rownames_to_column(var = "coef")
+    return(out)})
+
+df_inattentive <- dplyr::bind_rows(inattentive)
+
+ggplot(data = dplyr::filter(df_inattentive, coef != "(Intercept)"),
+       mapping = aes(x = estimate, y = coef)) + 
+  geom_point() + 
+  geom_errorbar(mapping = aes(xmin = conf_low, xmax = conf_high)) + 
+  geom_vline(xintercept = 0, linetype = "dashed") + 
+  facet_wrap(. ~ outcome) +
+  labs(x = "Point estimate", 
+       y = "Coefficient") +
+  theme_bw() +
+  theme(aspect.ratio = 1,
+        legend.position = "bottom")
+
+ggsave(plot = last_plot(),
+       filename = here::here(
+         "exhibits", "figures", "attentive.pdf"),
+       width = 10,
+       height = 10)
+
+###########################################################################
+##### Fatigue
+
+# binary
+df_original %>% 
+  dplyr::group_by(country, respondentid, task) %>% 
+  dplyr::summarise(
+    diff = abs(dplyr::first(support_rc) - dplyr::last(support_rc)),
+    diff = ifelse(diff > 0, 1, diff)) %>% 
+  dplyr::group_by(country, task) %>% 
+  dplyr::summarise(
+    mean = mean(diff, na.rm = TRUE)) %>% 
+  ggplot(., mapping = aes(x = task, y = mean, color = country)) +
+  geom_line() + 
+  theme_bw() +
+  labs(x = "Task Number", y = "Mean Difference in Choice\nBetween Candidates") +
+  theme(aspect.ratio = 1, 
+        legend.position = "bottom")
+
+# non-binary
+df_original %>% 
+  dplyr::group_by(country, respondentid, task) %>% 
+  dplyr::summarise(
+    diff = abs(dplyr::first(support_rc) - dplyr::last(support_rc))) %>% 
+  dplyr::group_by(country, task) %>% 
+  dplyr::summarise(
+    mean = mean(diff, na.rm = TRUE)) %>% 
+  ggplot(., mapping = aes(x = task, y = mean, color = country)) +
+  geom_line() + 
+  theme_bw() +
+  labs(x = "Task Number", y = "Mean Difference in Choice\nBetween Candidates") +
+  theme(aspect.ratio = 1, 
+        legend.position = "bottom")
+
+df_original %>% 
+  dplyr::group_by(respondentid, task) %>% 
+  dplyr::summarise(
+    diff = abs(dplyr::first(support_rc) - dplyr::last(support_rc))) %>% 
+  dplyr::group_by(task) %>% 
+  dplyr::summarise(
+    mean = mean(diff, na.rm = TRUE)) %>%
+  ggplot(., mapping = aes(x = task, y = mean)) +
+  geom_line() + 
+  theme_bw() +
+  labs(x = "Task Number", y = "Mean Difference in Choice\nBetween Candidates") +
+  theme(aspect.ratio = 1, 
+        legend.position = "bottom")
+
+estimatr::lm_robust(
+  support_rc ~ candemmg_rc2 * cancom_rc2, 
+  data = dplyr::filter(df_original, task == 5))
+
+  
