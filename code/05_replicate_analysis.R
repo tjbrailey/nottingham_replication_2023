@@ -170,16 +170,17 @@ ggsave(
   height = 15, width = 15)
 
 ###########################################################################
-##### Figure 1 -- but only using the first two profiles/ tasks
+##### Figure 1 -- BUT only using the first two profiles/ tasks
 
 ### pooled model
 
 df_original_sub <- dplyr::filter(df_original, !is.na(support_rc))
+df_original_sub <- dplyr::filter(df_original_sub, task <=2)
 
 # run regression
 reg_f1_1t2 <- lm(
   support_rc ~ candemmg_rc * cancom_rc,
-  data = filter(df_original_sub, task <=2) )
+  data = df_original_sub )
 
 texreg::screenreg(reg_f1_1t2)
 
@@ -228,14 +229,15 @@ list_plotsT2 <- lapply(
     df_original_sub <- dplyr::filter(
       df_original, 
       country == vec_countries[x])
-    
+    df_original_sub <- df_original_sub %>% dplyr::filter(task <=2)
+
+      
     # run regression
     reg_f1_s <- lm(
       support_rc ~ candemmg_rc * cancom_rc,
       clusters = resp, 
-      data = dplyr::filter(
-        df_original, 
-        country == vec_countries[x]))
+      data = df_original_sub)
+        
     
     # calculate marginal effects
     reg_f1_s_me <- ggeffects::ggeffect(
@@ -395,6 +397,51 @@ texreg::texreg(
   file = paste0(
     here::here("exhibits", "tables"), "/table_a2_replication.tex"))
 
+
+### A2 BUT only using first two profiles/ tasks
+
+list_table_a2 <- lapply(
+  X = seq_along(vec_table_a1_columns),
+  FUN = function(y){
+    out <- fxn_regression(
+      data = dplyr::filter(df_original, task <=2),
+      formula = "support_rc ~ candemmg_rc2 * cancom_rc2", 
+      cntry = vec_table_a1_columns[y])
+    return(out)})
+
+texreg::texreg(
+  l = list(
+    list_table_a2[[1]],
+    list_table_a2[[2]],
+    list_table_a2[[3]],
+    list_table_a2[[4]],
+    list_table_a2[[5]],
+    list_table_a2[[6]]),
+  custom.model.names = c(
+    "Pooled", "CZ", "MX", "SK", "UK", "US"),
+  custom.coef.map = list(
+    "candemmg_rc20" = "Undemocratic behavior",
+    "cancom_rc21" = "Very incompetent",
+    "cancom_rc22" = "Incompetent",
+    "cancom_rc23" = "Competent",
+    "cancom_rc24" = "Very competent",
+    "candemmg_rc20:cancom_rc21" = "Undemocratic x Very incompetent",
+    "candemmg_rc20:cancom_rc22" = "Undemocratic x Incompetent",
+    "candemmg_rc20:cancom_rc24" = "Undemocratic x Competent",
+    "candemmg_rc20:cancom_rc25" = "Undemocratic x Very competent"),
+  center = TRUE, 
+  caption = paste0(
+    "Effects of undemocratic behavior interacted by, candidate competence",
+    "in the Czech Republic, Mexico, South Korea, the United Kingdom, and",
+    "the United States. Candidate support is the dependent variable in", 
+    "all models.  Note: only first two (out of 10) prompts are used in these calculations"),
+  float.pos = "!htbp", 
+  label = "table_a2",
+  caption.above = TRUE,   
+  include.ci = FALSE, 
+  file = paste0(
+    here::here("exhibits", "tables"), "/table_a2_replication2tasks.tex"))
+
 ###########################################################################
 ##### Appendix B
 
@@ -446,13 +493,13 @@ table_sa1_eco <- fxn_prop_table("eco")
 # Reputation: Corruption
 table_sa1_cor <- fxn_prop_table("cor")
 
-# Closeness on policy issues b/t respondant and candidate, `dissemm`
-table_sa1_dissemm <- fxn_prop_table("dissemm")
+# Closeness on policy issues b/t respondant and candidate, `dissumm`
+table_sa1_dissumm <- fxn_prop_table("dissumm")
 
 table_sa1 <- dplyr::bind_rows(
   table_sa1_age, table_sa1_gender, table_sa1_background,
   table_sa1_party, table_sa1_redi, table_sa1_soc,
-  table_sa1_dem, table_sa1_eco, table_sa1_cor, table_sa1_dissemm) %>% 
+  table_sa1_dem, table_sa1_eco, table_sa1_cor, table_sa1_dissumm) %>% 
   dplyr::mutate(dplyr::across(dplyr::everything(), 
                               ~ ifelse(is.na(.), "", .)))
 
