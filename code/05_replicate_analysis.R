@@ -312,10 +312,13 @@ table_sa1_eco <- fxn_prop_table("eco")
 # Reputation: Corruption
 table_sa1_cor <- fxn_prop_table("cor")
 
+# Closeness on policy issues b/t respondant and candidate, `dissemm`
+table_sa1_dissemm <- fxn_prop_table("dissemm")
+
 table_sa1 <- dplyr::bind_rows(
   table_sa1_age, table_sa1_gender, table_sa1_background,
   table_sa1_party, table_sa1_redi, table_sa1_soc,
-  table_sa1_dem, table_sa1_eco, table_sa1_cor) %>% 
+  table_sa1_dem, table_sa1_eco, table_sa1_cor, table_sa1_dissemm) %>% 
   dplyr::mutate(dplyr::across(dplyr::everything(), 
                               ~ ifelse(is.na(.), "", .)))
 
