@@ -467,7 +467,10 @@ df_original %<>%
       country == "UK" & age %in% c(54:57) ~ "54-57",
       country == "UK" & age %in% c(58:61) ~ "58-61"))
 
-table_sa1_age <- fxn_prop_table("age_grp")
+
+table_sa1_age_grp <- fxn_prop_table("age_grp")
+
+
 
 # Gender
 table_sa1_gender <- fxn_prop_table("gender")
@@ -493,15 +496,16 @@ table_sa1_eco <- fxn_prop_table("eco")
 # Reputation: Corruption
 table_sa1_cor <- fxn_prop_table("cor")
 
-# Closeness on policy issues b/t respondant and candidate, `dissumm`
-table_sa1_dissumm <- fxn_prop_table("dissumm")
+
 
 table_sa1 <- dplyr::bind_rows(
-  table_sa1_age, table_sa1_gender, table_sa1_background,
+  table_sa1_age_grp, 
+ table_sa1_gender, table_sa1_background,
   table_sa1_party, table_sa1_redi, table_sa1_soc,
-  table_sa1_dem, table_sa1_eco, table_sa1_cor, table_sa1_dissumm) %>% 
+  table_sa1_dem, table_sa1_eco, table_sa1_cor) %>% 
   dplyr::mutate(dplyr::across(dplyr::everything(), 
                               ~ ifelse(is.na(.), "", .)))
+
 
 table_sa1_tex <- xtable::xtable(dplyr::rename(table_sa1,
                                               "Attribute Category" = "measure"))
