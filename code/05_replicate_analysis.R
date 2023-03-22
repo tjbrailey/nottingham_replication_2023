@@ -319,12 +319,17 @@ table_sa1 <- dplyr::bind_rows(
   dplyr::mutate(dplyr::across(dplyr::everything(), 
                               ~ ifelse(is.na(.), "", .)))
 
-table_sa1_tex <- xtable::xtable(dplyr::rename(table_sa1,
-                                              "Attribute Category" = "measure"))
+table_sa1_tex <- xtable::xtable(
+  dplyr::rename(table_sa1,
+                "Attribute Category" = "measure"), 
+  caption = "Distribution of attributes: US, UK, and CZ. Age is drawn randomly from probability-specified intervals",
+  label = "table_sa1")
+
 xtable::align(table_sa1_tex) <- "lp{7cm}ccccc"
+
 xtable::print.xtable(
   table_sa1_tex, tabular.environment = "longtable", floating = FALSE, 
-  booktabs = TRUE,
+  booktabs = TRUE, caption.placement = "top",
   file = here::here("exhibits", "tables", "table_sa1_replication.tex"))  
 
 save(table_sa1, file = paste0(
