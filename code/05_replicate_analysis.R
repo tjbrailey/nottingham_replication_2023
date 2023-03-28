@@ -434,7 +434,7 @@ texreg::texreg(
     "Effects of undemocratic behavior interacted by, candidate competence",
     "in the Czech Republic, Mexico, South Korea, the United Kingdom, and",
     "the United States. Candidate support is the dependent variable in", 
-    "all models.  Note: only first two (out of 10) prompts are used in these calculations"),
+    "all models.  Note: only the first two (out of ten) prompts are used in these calculations"),
   float.pos = "!htbp", 
   label = "table_a2",
   caption.above = TRUE,   
