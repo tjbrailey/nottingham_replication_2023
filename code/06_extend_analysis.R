@@ -128,11 +128,11 @@ ggplot(data = dplyr::filter(df_response_times, coef != "(Intercept)"),
   geom_vline(xintercept = 0, linetype = "dashed") + 
   facet_wrap(. ~ outcome) +
   scale_color_manual(values = c(
-    "10" = "#999999",    
-    "20" = "#E69F00",
-    "30" = "#56B4E9",
-    "40" = "#CC79A7",
-    "100" = "#F0E442"),
+    "10" = "#383838",    
+    "20" = "#696969",
+    "30" = "#A9A9A9",
+    "40" = "#D3D3D3",
+    "100" = "#000000"),
     labels = c(
       "10" = "10th percentiles dropped",
       "20" = "20th percentiles dropped", 
@@ -144,7 +144,8 @@ ggplot(data = dplyr::filter(df_response_times, coef != "(Intercept)"),
        color = "Restriction") +
   theme_bw() +
   theme(aspect.ratio = 1,
-        legend.position = "bottom")
+        legend.position = "bottom",
+        text = element_text(size = 18))
 ggsave(plot = last_plot(),
        filename = here::here(
          "exhibits", "figures", "estimates_by_time_taken.pdf"),
@@ -155,7 +156,8 @@ ggsave(plot = last_plot(),
 ##### Robustness to alternative specifications
 
 # ordered logistic regression
-reg_olog1 <- MASS::polr(as.factor(support) ~ candemmg + cancom, data = df_original)
+reg_olog1 <- MASS::polr(
+  as.factor(support) ~ candemmg + cancom, data = df_original)
 
 #  brant test 
 brant::brant(reg_olog1) # fails
@@ -207,9 +209,12 @@ df_mlog1 %>%
   #                              "5" = "Very Competent"))
   theme_bw() +
   theme(aspect.ratio = 1,
-        legend.position = "bottom")
+        legend.position = "bottom",
+        text = element_text(size = 18))
 ggsave(plot = last_plot(),
-       filename = paste0(here::here("exhibits", "figures", "mlogit_pp.pdf")))
+       filename = paste0(
+         here::here("exhibits", "figures", "mlogit_pp.pdf")),
+       height = 10, width = 10)
 
 # example candidate
 eg <- dplyr::filter(df_original, country == "CZ", respondentid %in% 4:5)
@@ -251,7 +256,8 @@ ggplot(data = dplyr::filter(df_inattentive, coef != "(Intercept)"),
        y = "Coefficient") +
   theme_bw() +
   theme(aspect.ratio = 1,
-        legend.position = "bottom")
+        legend.position = "bottom",
+        text = element_text(size = 18))
 
 ggsave(plot = last_plot(),
        filename = here::here(
@@ -292,7 +298,8 @@ df_original %>%
   dplyr::summarise(
     mean = mean(diff, na.rm = TRUE)) %>% 
   ggplot(., mapping = aes(x = task, y = mean, color = country)) +
-  geom_line() + 
+  geom_line(linewidth = 1) + 
+  scale_color_grey() + 
   scale_x_continuous(
     breaks = seq(1, 10, 1),
     labels = seq(1, 10, 1)) +
@@ -301,9 +308,12 @@ df_original %>%
        color = "") +
   theme_bw() +
   theme(aspect.ratio = 1, 
-        legend.position = "bottom")
+        legend.position = "bottom",
+        text = element_text(size = 18))
 ggsave(plot = last_plot(),
-       filename = here::here("exhibits", "figures", "diff_in_candidate_choice.pdf"))
+       filename = here::here(
+         "exhibits", "figures", "diff_in_candidate_choice.pdf"),
+       height = 10, width = 10)
 
 # pooled
 df_original %>% 
@@ -318,7 +328,8 @@ df_original %>%
   scale_x_continuous(
     breaks = seq(1, 10, 1),
     labels = seq(1, 10, 1)) +
-  labs(x = "Task Number", y = "Mean Difference in Choice\nBetween Candidates") +
+  labs(x = "Task Number", 
+       y = "Mean Difference in Choice\nBetween Candidates") +
   theme_bw() +
   theme(aspect.ratio = 1, 
         legend.position = "bottom")
@@ -327,10 +338,20 @@ df_original %<>%
   dplyr::group_by(respondentid, task) %>% 
   dplyr::mutate(
     cand_pair_diff = abs(
-      dplyr::first(support_rc) - dplyr::last(support_rc))) %>% 
+      dplyr::first(support_rc) - dplyr::last(support_rc)),
+    cand_pair_diff_bin = ifelse(cand_pair_diff > 0, 1, 0)) %>% 
+  dplyr::group_by(country) %>% 
+  dplyr::mutate(nobs = dplyr::n()) %>%
   dplyr::ungroup()
 
-estimatr::lm_robust(
+mean(df_original$cand_pair_diff[df_original$task==1], na.rm = TRUE) -
+  mean(df_original$cand_pair_diff[df_original$task==10], na.rm = TRUE)
+
+coefplot::coefplot(estimatr::lm_robust(
   cand_pair_diff ~ as.factor(task), 
-  data = df_original)
+  data = dplyr::filter(df_original, country == "CZ")))
+
+coefplot::coefplot(estimatr::lm_robust(
+  cand_pair_diff_bin ~ as.factor(task), 
+  data = df_original))
 
