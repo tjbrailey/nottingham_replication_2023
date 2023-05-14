@@ -126,7 +126,8 @@ ggplot(data = dplyr::filter(df_response_times, coef != "(Intercept)"),
   geom_point() + 
   geom_errorbar(mapping = aes(xmin = conf_low, xmax = conf_high)) + 
   geom_vline(xintercept = 0, linetype = "dashed") + 
-  facet_wrap(. ~ outcome) +
+  facet_wrap(. ~ factor(outcome, levels = c("pooled", "CZ", "MX",
+                                            "SK", "UK", "US"))) +
   scale_color_manual(values = c(
     "10" = "#383838",    
     "20" = "#696969",
@@ -139,6 +140,12 @@ ggplot(data = dplyr::filter(df_response_times, coef != "(Intercept)"),
       "30" = "30th percentiles dropped", 
       "40" = "40th percentiles dropped", 
       "100" = "Full dataset")) + 
+  scale_y_discrete(labels = c(
+    "candemmg_rc20" = "Undemocratic",
+    "cancom_rc25" = "Very Incompetent",
+    "cancom_rc24" = "Moderately Incompetent", 
+    "cancom_rc22" = "Moderately Competent", 
+    "cancom_rc21" = "Very Competent")) + 
   labs(x = "Point estimate", 
        y = "Coefficient", 
        color = "Restriction") +
@@ -251,7 +258,14 @@ ggplot(data = dplyr::filter(df_inattentive, coef != "(Intercept)"),
   geom_point() + 
   geom_errorbar(mapping = aes(xmin = conf_low, xmax = conf_high)) + 
   geom_vline(xintercept = 0, linetype = "dashed") + 
-  facet_wrap(. ~ outcome) +
+  facet_wrap(. ~ factor(outcome, levels = c("pooled", "CZ", "MX",
+                                            "SK", "UK", "US"))) +
+  scale_y_discrete(labels = c(
+    "candemmg_rc20" = "Undemocratic",
+    "cancom_rc25" = "Very Incompetent",
+    "cancom_rc24" = "Moderately Incompetent", 
+    "cancom_rc22" = "Moderately Competent", 
+    "cancom_rc21" = "Very Competent")) + 
   labs(x = "Point estimate", 
        y = "Coefficient") +
   theme_bw() +
@@ -279,6 +293,7 @@ df_original %>%
     mean = mean(diff, na.rm = TRUE)) %>% 
   ggplot(., mapping = aes(x = task, y = mean, color = country)) +
   geom_line() + 
+  scale_color_grey() + 
   scale_x_continuous(
     breaks = seq(1, 10, 1),
     labels = seq(1, 10, 1)) +
@@ -325,6 +340,10 @@ df_original %>%
     mean = mean(diff, na.rm = TRUE)) %>%
   ggplot(., mapping = aes(x = task, y = mean)) +
   geom_line() +
+  scale_color_grey() +
+  #scale_y_continuous(
+  #  limits = c(1, 4),
+  #  breaks = seq(1, 4, 1)) + 
   scale_x_continuous(
     breaks = seq(1, 10, 1),
     labels = seq(1, 10, 1)) +
