@@ -213,10 +213,30 @@ texreg::texreg(
   float.pos = "!htbp", 
   label = "table_a1",
   caption.above = TRUE, 
-  include.ci = FALSE,  
-  file = paste0(
-    here::here("exhibits", "tables"), "/table_a1_replication.tex")
+  include.ci = FALSE
+  #file = paste0(
+  #  here::here("exhibits", "tables"), "/table_a1_replication.tex")
   )
+
+# save p-values
+table_a1_pv <- data.frame(
+  "Pooled" = list_table_a1[[1]]$p.value,
+  "CZ" = list_table_a1[[2]]$p.value,
+  "MX" = list_table_a1[[3]]$p.value,
+  "SK" = list_table_a1[[4]]$p.value,
+  "UK" = list_table_a1[[5]]$p.value,
+  "US" = list_table_a1[[6]]$p.value
+) 
+
+rownames(table_a1_pv) <- c(
+  "Intercept", 
+  "Undemocratic Behaviour",
+  "Very incompetent",
+  "Incompetent",
+  "Competent",
+  "Very Competent")
+
+saveRDS(table_a1_pv, file = here::here("data", "table_a1_pv.rds"))
 
 ### A2 
 list_table_a2 <- lapply(
@@ -260,6 +280,98 @@ texreg::texreg(
   include.ci = FALSE, 
   file = paste0(
     here::here("exhibits", "tables"), "/table_a2_replication.tex"))
+
+# save p-values
+table_a2_pv <- data.frame(
+  "Pooled" = list_table_a2[[1]]$p.value,
+  "CZ" = list_table_a2[[2]]$p.value,
+  "MX" = list_table_a2[[3]]$p.value,
+  "SK" = list_table_a2[[4]]$p.value,
+  "UK" = list_table_a2[[5]]$p.value,
+  "US" = list_table_a2[[6]]$p.value
+) 
+
+rownames(table_a2_pv) <- c(
+  "Intercept", 
+  "Undemocratic Behaviour",
+  "Very incompetent",
+  "Incompetent",
+  "Competent",
+  "Very Competent",
+  "Undemocratic x Very incompetent",
+  "Undemocratic x Incompetent",
+  "Undemocratic x Competent",
+  "Undemocratic x Very competent")
+
+saveRDS(table_a2_pv, file = here::here("data", "table_a2_pv.rds"))
+
+### A2 BUT only using first two profiles/ tasks
+
+list_table_a2 <- lapply(
+  X = seq_along(vec_table_a1_columns),
+  FUN = function(y){
+    out <- fxn_regression(
+      data = dplyr::filter(df_original, task <=2),
+      formula = "support_rc ~ candemmg_rc2 * cancom_rc2", 
+      cntry = vec_table_a1_columns[y])
+    return(out)})
+
+texreg::texreg(
+  l = list(
+    list_table_a2[[1]],
+    list_table_a2[[2]],
+    list_table_a2[[3]],
+    list_table_a2[[4]],
+    list_table_a2[[5]],
+    list_table_a2[[6]]),
+  custom.model.names = c(
+    "Pooled", "CZ", "MX", "SK", "UK", "US"),
+  custom.coef.map = list(
+    "candemmg_rc20" = "Undemocratic behavior",
+    "cancom_rc21" = "Very incompetent",
+    "cancom_rc22" = "Incompetent",
+    "cancom_rc23" = "Competent",
+    "cancom_rc24" = "Very competent",
+    "candemmg_rc20:cancom_rc21" = "Undemocratic x Very incompetent",
+    "candemmg_rc20:cancom_rc22" = "Undemocratic x Incompetent",
+    "candemmg_rc20:cancom_rc24" = "Undemocratic x Competent",
+    "candemmg_rc20:cancom_rc25" = "Undemocratic x Very competent"),
+  center = TRUE, 
+  caption = paste0(
+    "Effects of undemocratic behavior interacted by, candidate competence",
+    "in the Czech Republic, Mexico, South Korea, the United Kingdom, and",
+    "the United States. Candidate support is the dependent variable in", 
+    "all models.  Note: only the first two (out of ten) prompts are used in these calculations"),
+  float.pos = "!htbp", 
+  label = "table_a2",
+  caption.above = TRUE,   
+  include.ci = FALSE, 
+  file = paste0(
+    here::here("exhibits", "tables"), "/table_a2_replication2tasks.tex"))
+
+# save p-values
+table_a2_2tasks_pv <- data.frame(
+  "Pooled" = list_table_a2[[1]]$p.value,
+  "CZ" = list_table_a2[[2]]$p.value,
+  "MX" = list_table_a2[[3]]$p.value,
+  "SK" = list_table_a2[[4]]$p.value,
+  "UK" = list_table_a2[[5]]$p.value,
+  "US" = list_table_a2[[6]]$p.value
+) 
+
+rownames(table_a2_2tasks_pv) <- c(
+  "Intercept", 
+  "Undemocratic Behaviour",
+  "Very incompetent",
+  "Incompetent",
+  "Competent",
+  "Very Competent",
+  "Undemocratic x Very incompetent",
+  "Undemocratic x Incompetent",
+  "Undemocratic x Competent",
+  "Undemocratic x Very competent")
+
+saveRDS(table_a2_2tasks_pv, file = here::here("data", "table_a2_2tasks_pv.rds"))
 
 ###########################################################################
 ##### Appendix B
