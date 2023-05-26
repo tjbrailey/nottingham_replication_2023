@@ -236,6 +236,14 @@ rownames(table_a1_pv) <- c(
   "Competent",
   "Very Competent")
 
+table_a1_pv <- list(
+  list_table_a1[[1]],
+  list_table_a1[[2]],
+  list_table_a1[[3]],
+  list_table_a1[[4]],
+  list_table_a1[[5]],
+  list_table_a1[[6]])
+
 saveRDS(table_a1_pv, file = here::here("data", "table_a1_pv.rds"))
 
 ### A2 
@@ -301,7 +309,15 @@ rownames(table_a2_pv) <- c(
   "Undemocratic x Very incompetent",
   "Undemocratic x Incompetent",
   "Undemocratic x Competent",
-  "Undemocratic x Very competent")
+  "Undemocratic x Very competent")#
+
+table_a2_pv <- list(
+  list_table_a2[[1]],
+  list_table_a2[[2]],
+  list_table_a2[[3]],
+  list_table_a2[[4]],
+  list_table_a2[[5]],
+  list_table_a2[[6]])
 
 saveRDS(table_a2_pv, file = here::here("data", "table_a2_pv.rds"))
 
@@ -370,6 +386,14 @@ rownames(table_a2_2tasks_pv) <- c(
   "Undemocratic x Incompetent",
   "Undemocratic x Competent",
   "Undemocratic x Very competent")
+
+table_a2_2tasks_pv <- list(
+  list_table_a2[[1]],
+  list_table_a2[[2]],
+  list_table_a2[[3]],
+  list_table_a2[[4]],
+  list_table_a2[[5]],
+  list_table_a2[[6]])
 
 saveRDS(table_a2_2tasks_pv, file = here::here("data", "table_a2_2tasks_pv.rds"))
 
